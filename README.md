@@ -1,5 +1,6 @@
 # Weather Forecast App
 Be aware of climatic conditions in your city today, and in the next 7 days.
+---
 Project developed using UIKit with ViewCode and OpenWeather API 2.5 made to practice Request, Screen Transition and File Organization.
 
 
