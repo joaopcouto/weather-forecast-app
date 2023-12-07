@@ -34,7 +34,6 @@ class ViewController: UIViewController {
         label.font                                      = UIFont.systemFont(ofSize: 20)
         label.textAlignment                             = .center
         label.textColor                                 = UIColor.primaryColor
-        label.text                                      = "Sao Paulo"
         return label
     }()
     
@@ -46,7 +45,6 @@ class ViewController: UIViewController {
                                                                             weight: .bold)
         label.textAlignment                             = .left
         label.textColor                                 = UIColor.primaryColor
-        label.text                                      = "25°C"
         return label
     }()
     
@@ -72,7 +70,6 @@ class ViewController: UIViewController {
     private lazy var humidityValueLabel: UILabel = {
         let label                                       = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text                                      = "1000mm"
         label.font                                      = UIFont.systemFont(ofSize: 12, 
                                                                             weight: .semibold)
         label.textColor                                 = UIColor.contrastColor
@@ -99,7 +96,6 @@ class ViewController: UIViewController {
     private lazy var windValueLabel: UILabel = {
         let label                                       = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text                                      = "10km/h"
         label.font                                      = UIFont.systemFont(ofSize: 12, 
                                                                             weight: .semibold)
         label.textColor                                 = UIColor.contrastColor
@@ -173,12 +169,31 @@ class ViewController: UIViewController {
         return tableView
     }()
     
+    private let service = Service()
+    private var city = City(lat: "-23.6814346", lon: "-46.9249599", name: "São Paulo")
+    private var forecastResponse: ForecastResponse?
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         setupView()
+        fetchData()
+    }
+    
+    private func fetchData() {
+        service.fetchData(city: city ) { [weak self] response in
+            self?.forecastResponse = response
+            DispatchQueue.main.async {
+                self?.loadData()
+            }
+        }
+    }
+    
+    private func loadData() {
+        cityLabel.text = city.name
         
+        temperatureLabel.text = "\(Int(forecastResponse?.current.temp ?? 0))°C"
+        humidityValueLabel.text = "\(forecastResponse?.current.humidity ?? 0)mm"
+        windValueLabel.text = "\(forecastResponse?.current.windSpeed ?? 0)km/h"
     }
     
     
@@ -227,14 +242,15 @@ class ViewController: UIViewController {
         ])
         NSLayoutConstraint.activate([
             temperatureLabel.topAnchor.constraint(equalTo: cityLabel.bottomAnchor, constant: 12),
-            temperatureLabel.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 26)
+            temperatureLabel.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 18),
+            temperatureLabel.heightAnchor.constraint(equalToConstant: 71)
         ])
         NSLayoutConstraint.activate([
             weatherIcon.heightAnchor.constraint(equalToConstant: 86),
             weatherIcon.widthAnchor.constraint(equalToConstant: 86),
-            weatherIcon.trailingAnchor.constraint(equalTo: headerView.trailingAnchor, constant: -26),
+            weatherIcon.trailingAnchor.constraint(equalTo: headerView.trailingAnchor, constant: -18),
             weatherIcon.centerYAnchor.constraint(equalTo: temperatureLabel.centerYAnchor),
-            weatherIcon.leadingAnchor.constraint(equalTo: temperatureLabel.trailingAnchor, constant: 15)
+            weatherIcon.leadingAnchor.constraint(equalTo: temperatureLabel.trailingAnchor, constant: 8)
         ])
         NSLayoutConstraint.activate([
             statsStackView.topAnchor.constraint(equalTo: headerView.bottomAnchor, constant: 24),
